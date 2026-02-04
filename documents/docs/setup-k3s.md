@@ -57,7 +57,7 @@ sudo modprobe br_netfilter
 Persist sau reboot:
 
 ```bash
-cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay
 br_netfilter
 EOF
@@ -68,7 +68,7 @@ EOF
 ### 2.3. Cấu hình sysctl cho networking
 
 ```bash
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+cat <<EOF | sudo tee /etc/sysctl.d/kubernetes.conf
 net.bridge.bridge-nf-call-iptables  = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 net.ipv4.ip_forward                 = 1
@@ -96,6 +96,10 @@ curl -sfL https://get.k3s.io | sh -s - \
 * `servicelb`: load balancer giả (không cần với 1 node)
 * `metrics-server`: tốn RAM, chỉ bật khi cần monitoring
 
+### 3.1. Cài containerd
+```bash
+sudo apt install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates
+```
 ---
 
 ## 4. Kiểm tra trạng thái k3s
@@ -117,10 +121,10 @@ Active: active (running)
 ### 4.2. Cấu hình kubectl cho user thường
 
 ```bash
-mkdir -p ~/.kube
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown $USER:$USER ~/.kube/config
-chmod 600 ~/.kube/config
+sudo mkdir -p /etc/rancher/k3s
+cat <<'EOF' | sudo tee /etc/rancher/k3s/config.yaml
+write-kubeconfig-mode: "0644"
+EOF
 ```
 
 ---
